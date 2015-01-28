@@ -113,13 +113,14 @@ void textHash(char *text, int *textlen, unsigned int *texthas, int *patlen)
 	for (int loop = 1; loop < *textlen - *patlen + 1; loop++){
 		texthas[loop] = (texthas[loop - 1] - text[loop - 1]) / RADIX
 			+ text[*patlen + loop - 1] * (int) pow(RADIX, (double) (*patlen - 1));
-//		cout << texthas[loop] << "\t";
 	}
 	*/
 
+	///*
 	for (int loop = 0; loop < *textlen - *patlen + 1; loop++){
 		hHashCalc(text + loop, *patlen, &texthas[loop]);
 	}
+	//*/
 }
 
 
