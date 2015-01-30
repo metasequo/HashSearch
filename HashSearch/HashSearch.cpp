@@ -14,17 +14,18 @@ using namespace std;
 
 void hHashCalc(char *text, int length, unsigned int *rehash);
 void textHash(char *text, int *textlen, unsigned int *texthas, int *patlen);
-void HashSearch(char *text, int textlen, unsigned int texthas [], char *pattern, int patlen, unsigned int pathas, int flag []);
-void Emphasis(char *text, int textlen, int patlen, int flag [], int Count);
-void InsertChar(char *text, char *shift, int flag [], int mem [], int *counter, char *insert);
-void ShiftChar(char *text, char *shift1, char *shift2, int flag [], int mem1 [], int mem2 [], int *counter, int inslen, int looptimes);
+void HashSearch(char *text, int textlen, unsigned int texthas [], char *pattern, int patlen, unsigned int pathas, bool flag []);
+void Emphasis(char *text, int textlen, int patlen, bool flag [], int Count);
+void InsertChar(char *text, char *shift, bool flag [], bool mem [], int *counter, char *insert);
+void ShiftChar(char *text, char *shift1, char *shift2, bool flag [], bool mem1 [], bool mem2 [], int *counter, int inslen, int looptimes);
 
 int main(){
 	char text[SIZE * 2], pattern[SIZE];
 	string inputtext;
 	int textlen[1], patlen[1];
 	unsigned int texthas[SIZE * 2] = { 0 }, pathas[1] = { 0 };
-	int FoundFlag[SIZE] = { 0 }, FoundCount = 0;
+	bool FoundFlag[SIZE] = { 0 };
+	int FoundCount = 0;
 	int i;
 	float sum = 0.0f;
 	LARGE_INTEGER freq;
@@ -70,10 +71,16 @@ int main(){
 
 //ハッシュ値比較
 	cout << "*Finding..." << endl;
+
+	QueryPerformanceCounter(&start);
 	HashSearch(text, textlen[0], texthas, pattern, patlen[0], pathas[0], FoundFlag);
+	QueryPerformanceCounter(&stop);
+
+	sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+	cout << "Time required(HashSearch)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
 
 	for (i = 0; i < textlen[0]; i++)
-		if (FoundFlag[i] == 1)	FoundCount++;
+		if (FoundFlag[i] == true)	FoundCount++;
 	cout << "*FoundCount = " << FoundCount << endl;
 	if (FoundCount != 0)
 	{
@@ -125,7 +132,7 @@ void textHash(char *text, int *textlen, unsigned int *texthas, int *patlen)
 
 
 void HashSearch(char *text, int textlen, unsigned int texthas [],
-	char *pattern, int patlen, unsigned int pathas, int flag [])
+	char *pattern, int patlen, unsigned int pathas, bool flag [])
 {
 	int i, j;
 
@@ -134,9 +141,10 @@ void HashSearch(char *text, int textlen, unsigned int texthas [],
 		if (pathas == texthas[i])
 		{
 			//cout << "Found the same hash!" << endl;
-			cout << "Text Hash(";
+/*			cout << "Text Hash(";
 			for (j = 0; j < patlen; j++) cout << text[i + j];
 			cout << ") = " << texthas[i] << endl;
+*/
 			j = 0;
 			do{
 				if (text[i + j] != pattern[j])	break;
@@ -144,17 +152,17 @@ void HashSearch(char *text, int textlen, unsigned int texthas [],
 
 			if (j == patlen)
 			{
-				flag[i] = 1;
+				flag[i] = true;
 			}
 		}
 	}
 }
 
-void Emphasis(char *text, int textlen, int patlen, int flag [], int Count)
+void Emphasis(char *text, int textlen, int patlen, bool flag [], int Count)
 {
 	int i, looptimes;
 	char shift1[SIZE], shift2[SIZE];
-	int mem1[SIZE * 2], mem2[SIZE * 2];
+	bool mem1[SIZE * 2], mem2[SIZE * 2];
 	char insert1 [] = " << ", insert2 [] = " >> ";
 	int inslen = strlen(insert1);
 
@@ -162,7 +170,7 @@ void Emphasis(char *text, int textlen, int patlen, int flag [], int Count)
 
 	for (i = 0; i < textlen - patlen + (8 * Count); i++)
 	{
-		if (flag[i] == 1)
+		if (flag[i] == true)
 		{
 			InsertChar(text, shift1, flag, mem1, &i, insert1);
 			ShiftChar(text, shift1, shift2, flag, mem1, mem2, &i, inslen, looptimes);
@@ -175,7 +183,7 @@ void Emphasis(char *text, int textlen, int patlen, int flag [], int Count)
 	}
 }
 
-void InsertChar(char *text, char *shift, int flag [], int mem [], int *counter, char *insert)
+void InsertChar(char *text, char *shift, bool flag [], bool mem [], int *counter, char *insert)
 {
 	int inslen = strlen(insert), j;
 	for (j = 0; j < inslen; j++)
@@ -190,7 +198,7 @@ void InsertChar(char *text, char *shift, int flag [], int mem [], int *counter, 
 	*counter += inslen;
 }
 
-void ShiftChar(char *text, char *shift1, char *shift2, int flag [], int mem1 [], int mem2 [],
+void ShiftChar(char *text, char *shift1, char *shift2, bool flag [], bool mem1 [], bool mem2 [],
 	int *counter, int inslen, int looptimes)
 {
 	int j;
