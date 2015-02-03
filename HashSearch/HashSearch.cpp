@@ -10,7 +10,7 @@
 using namespace std;
 
 #define	RADIX 7
-#define SIZE 8192
+#define SIZE 9216
 
 void hHashCalc(char *text, int length, unsigned int *rehash);
 void textHash(char *text, int *textlen, unsigned int *texthas, int *patlen);
@@ -37,6 +37,7 @@ int main(){
 	const char *convert = inputtext.c_str();
 	strcpy(text, convert);
 	textlen[0] = strlen(text);
+	cout << textlen[0] << endl;
 
 	do{
 		cout << endl << "*Please input pattern." << endl;
