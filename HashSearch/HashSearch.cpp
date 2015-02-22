@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 
 #include <string.h>
 #include <stdlib.h>
@@ -52,7 +52,7 @@ int main(){
 		}
 	} while (textlen[0] < patlen[0]);
 
-//ƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…’lŒvŽZ
+//ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥å€¤è¨ˆç®—
 	QueryPerformanceCounter(&start);
 	hHashCalc(pattern, patlen[0], pathas);
 	QueryPerformanceCounter(&stop);
@@ -61,7 +61,7 @@ int main(){
 
 	cout << endl << "*Pattern Hash(" << pattern << ") = " << pathas[0] << endl << endl;
 
-//ƒeƒLƒXƒg‚ÌƒnƒbƒVƒ…’lŒvŽZ
+//ãƒ†ã‚­ã‚¹ãƒˆã®ãƒãƒƒã‚·ãƒ¥å€¤è¨ˆç®—
 	QueryPerformanceCounter(&start);
 	textHash(text, textlen, texthas, patlen);
 	QueryPerformanceCounter(&stop);
@@ -70,7 +70,7 @@ int main(){
 
 	cout << "Time required(sum)\t:\t" << sum * 1000.0 << " millseconds" << endl;
 
-//ƒnƒbƒVƒ…’l”äŠr
+//ãƒãƒƒã‚·ãƒ¥å€¤æ¯”è¼ƒ
 	cout << "*Finding..." << endl;
 
 	QueryPerformanceCounter(&start);
