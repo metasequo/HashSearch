@@ -11,6 +11,7 @@ using namespace std;
 
 #define	RADIX 7
 #define SIZE 9216
+#define LOOP_NUM 100
 
 void hHashCalc(char *text, int length, unsigned int *rehash);
 void textHash(char *text, int *textlen, unsigned int *texthas, int *patlen);
@@ -27,20 +28,25 @@ int main(){
 	bool FoundFlag[SIZE] = { 0 };
 	int FoundCount = 0;
 	int i;
-	float sum = 0.0f;
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	LARGE_INTEGER start, stop;
 
-	cout << "*Please input text." << endl;
+	float sum = 0.0f;
+	float Time_pathas = 0;
+	float Time_texthas = 0;
+	float Time_sum = 0;
+	float Time_HashSearch = 0;
+
+//	cout << "*Please input text." << endl;
 	getline(cin, inputtext);
 	const char *convert = inputtext.c_str();
 	strcpy(text, convert);
 	textlen[0] = strlen(text);
-	cout << textlen[0] << endl;
+//	cout << textlen[0] << endl;
 
 	do{
-		cout << endl << "*Please input pattern." << endl;
+//		cout << endl << "*Please input pattern." << endl;
 		getline(cin, inputtext);
 		convert = inputtext.c_str();
 		strcpy(pattern, convert);
@@ -52,34 +58,50 @@ int main(){
 		}
 	} while (textlen[0] < patlen[0]);
 
-//パターンのハッシュ値計算
-	QueryPerformanceCounter(&start);
-	hHashCalc(pattern, patlen[0], pathas);
-	QueryPerformanceCounter(&stop);
-	sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
-	cout << "Time required(pattern hash)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
+	for (int loopcnt = 0; loopcnt < LOOP_NUM; loopcnt++){
+		sum = 0.0f;
 
-	cout << endl << "*Pattern Hash(" << pattern << ") = " << pathas[0] << endl << endl;
+		//パターンのハッシュ値計算
+		QueryPerformanceCounter(&start);
+		hHashCalc(pattern, patlen[0], pathas);
+		QueryPerformanceCounter(&stop);
+		sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		Time_pathas += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		//	cout << "Time required(pattern hash)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
 
-//テキストのハッシュ値計算
-	QueryPerformanceCounter(&start);
-	textHash(text, textlen, texthas, patlen);
-	QueryPerformanceCounter(&stop);
-	sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
-	cout << "Time required(text hash)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
+		//	cout << endl << "*Pattern Hash(" << pattern << ") = " << pathas[0] << endl << endl;
 
-	cout << "Time required(sum)\t:\t" << sum * 1000.0 << " millseconds" << endl;
+		//テキストのハッシュ値計算
+		QueryPerformanceCounter(&start);
+		textHash(text, textlen, texthas, patlen);
+		QueryPerformanceCounter(&stop);
+		sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		Time_texthas += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		//	cout << "Time required(text hash)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
 
-//ハッシュ値比較
-	cout << "*Finding..." << endl;
+		Time_sum += sum;
+		//	cout << "Time required(sum)\t:\t" << sum * 1000.0 << " millseconds" << endl;
 
-	QueryPerformanceCounter(&start);
-	HashSearch(text, textlen[0], texthas, pattern, patlen[0], pathas[0], FoundFlag);
-	QueryPerformanceCounter(&stop);
+		//ハッシュ値比較
+		//	cout << "*Finding..." << endl;
 
-	sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
-	cout << "Time required(HashSearch)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
+		QueryPerformanceCounter(&start);
+		HashSearch(text, textlen[0], texthas, pattern, patlen[0], pathas[0], FoundFlag);
+		QueryPerformanceCounter(&stop);
 
+//		sum += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		Time_HashSearch += (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart;
+		//	cout << "Time required(HashSearch)\t:\t" << (float) (stop.QuadPart - start.QuadPart) / freq.QuadPart * 1000.0 << " millseconds" << endl;
+
+
+	}
+
+	cout << "Time required(pattern hash)," << Time_pathas * 1000.0 / LOOP_NUM << endl;
+	cout << "Time required(text hash)," << Time_texthas * 1000.0 / LOOP_NUM << endl;
+	cout << "Time required(sum)," << Time_sum * 1000.0 / LOOP_NUM << endl;
+	cout << "Time required(HashSearch)," << Time_HashSearch * 1000.0 / LOOP_NUM << endl;
+
+	/*
 	for (i = 0; i < textlen[0]; i++)
 		if (FoundFlag[i] == true)	FoundCount++;
 	cout << "*FoundCount = " << FoundCount << endl;
@@ -92,6 +114,7 @@ int main(){
 	{
 		cout << endl << "**Not found**" << endl;
 	}
+	*/
 
 	return 0;
 }
